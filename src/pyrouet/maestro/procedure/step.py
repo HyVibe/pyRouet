@@ -49,7 +49,7 @@ class Step_Base(ABC):
         - critcal: bool → Stop procedure execution if error
         """
 
-        super().__init_()
+        super().__init__()
 
         # Process kwargs
         self.phony           = kwargs.get("phony"          , False)
@@ -61,7 +61,7 @@ class Step_Base(ABC):
     def options_get(self):
         dd = {
             "phony":          self.phony,
-            "critical":       self.cricital,
+            "critical":       self.critical,
             "break_if_error": self.break_if_error
         }
 
@@ -96,8 +96,8 @@ class Step_Action(Step_Base):
     def run(self, ctx, path_stack, errlist, values):
         log     = logging.getLogger(self.path_str(path_stack))
 
-        id_     = path_stack[-1]            # ID of action is tail of stack
-        r       = Result_Action(id_, False) # Default result is False
+        id_     = path_stack[-1]              # ID of action is tail of stack
+        r       = Result_Action(result=False) # Default result is False
 
         t_start = time.time()
 

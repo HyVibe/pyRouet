@@ -8,6 +8,8 @@
  Revised February 2022
 """
 
+from ..objects.constraints import Constraint_Object
+
 class Constraint_None(Constraint_Object):
     def __init__(self):
         super().__init__("none")

@@ -8,7 +8,7 @@
  Revised February 2022
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing      import (
     ClassVar,
     List,
@@ -28,55 +28,59 @@ class Result_Object:
     timestamp: Optional[int]           = None # Timestamp in ms time
     duration:  Optional[int]           = None # Duration is ms
 
-    options:   Optional[Dict[str,any]] = field(default_factory=dict)
+    options:   Dict[str,any]           = field(default_factory=dict)
 
 
 # ┌────────────────────────────────────────┐
 # │ Procedure result object                │
 # └────────────────────────────────────────┘
 
+@dataclass
 class Result_Procedure(Result_Object):
     tests: List[Result_Object] = field(default_factory=list)
-    result: bool
+    result: bool = False
 
 
 # ┌────────────────────────────────────────┐
 # │ Identifiable result object             │
 # └────────────────────────────────────────┘
 
+@dataclass
 class Result_ID_Object(Result_Object):
-    class_: str
-    id_   : str
+    class_: str = field(default="", init=False)
+    id_   : str = ""
 
 
 # ┌────────────────────────────────────────┐
 # │ Container result object                │
 # └────────────────────────────────────────┘
 
+@dataclass
 class Result_Container(Result_ID_Object):
     class_ = "container"
-
-    tests: List[Result_Object]
+    tests: List[Result_Object] = field(default_factory=list)
 
 
 # ┌────────────────────────────────────────┐
 # │ Action result object                   │
 # └────────────────────────────────────────┘
 
+@dataclass
 class Result_Action(Result_ID_Object):
-    class_ = "action"
-    result_: Optional[bool] = None
+    class_                 = "action"
+    result: Optional[bool] = None
 
 
 # ┌────────────────────────────────────────┐
 # │ Measure result object                  │
 # └────────────────────────────────────────┘
 
+@dataclass
 class Result_Measure(Result_ID_Object):
     class_ = "measure"
 
-    constraint: Constraint_Object,
-    unit: str,
+    constraint: Constraint_Object = None
+    unit: str = ""
 
     # value is optional because the measure can fail
     value: Optional[any] = None
