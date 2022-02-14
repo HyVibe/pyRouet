@@ -62,7 +62,9 @@ class Step_Base(ABC):
         dd = {
             "phony":          self.phony,
             "critical":       self.critical,
-            "break_if_error": self.break_if_error
+            "break_if_error": self.break_if_error,
+            "store_timestamp": self.store_timestamp,
+            "store_duration": self.store_duration
         }
 
         return dd

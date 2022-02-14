@@ -38,7 +38,7 @@ class Result_Object:
 @dataclass
 class Result_Procedure(Result_Object):
     tests: List[Result_Object] = field(default_factory=list)
-    result: bool = False
+    result: bool = None
 
 
 # ┌────────────────────────────────────────┐
@@ -47,8 +47,8 @@ class Result_Procedure(Result_Object):
 
 @dataclass
 class Result_ID_Object(Result_Object):
-    class_: str = field(default="", init=False)
-    id_   : str = ""
+    step_class: str = field(default="", init=False)
+    step_id   : str = ""
 
 
 # ┌────────────────────────────────────────┐
@@ -57,7 +57,7 @@ class Result_ID_Object(Result_Object):
 
 @dataclass
 class Result_Container(Result_ID_Object):
-    class_ = "container"
+    step_class = "container"
     tests: List[Result_Object] = field(default_factory=list)
 
 
@@ -67,7 +67,7 @@ class Result_Container(Result_ID_Object):
 
 @dataclass
 class Result_Action(Result_ID_Object):
-    class_                 = "action"
+    step_class             = "action"
     result: Optional[bool] = None
 
 
@@ -77,7 +77,7 @@ class Result_Action(Result_ID_Object):
 
 @dataclass
 class Result_Measure(Result_ID_Object):
-    class_ = "measure"
+    step_class = "measure"
 
     constraint: Constraint_Object = None
     unit: str = ""

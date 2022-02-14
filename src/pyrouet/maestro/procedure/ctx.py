@@ -133,7 +133,7 @@ class Procedure_Context:
         values     = values     or Procedure_Context_Values()
 
         # Init result object
-        proc_res = Result_Container(id_) if id_ is not None else Result_Procedure()
+        proc_res = Result_Container(step_id=id_) if id_ else Result_Procedure()
 
         # Add id to path_stack if any
         if id_:
@@ -166,10 +166,12 @@ class Procedure_Context:
                                                 values     = values )
 
                     # Store result for subprocedure
-                    if res is not None:
-                        proc_res.tests.append(res)
+                    proc_res.tests.append(res)
 
                     if res.err is not None:
+                        if isinstance(proc_res, Result_Procedure):
+                            proc_res.result = False # Procedure is failed
+
                         if isinstance(res.err, Procedure_Abort_Error) or \
                             isinstance(res.err, Procedure_Stop_Error):
                                 proc_res.err = res.err
@@ -188,9 +190,11 @@ class Procedure_Context:
                         values     = values
                     )
 
-                    if res is not None:
-                        proc_res.tests.append(res)
+                    proc_res.tests.append(res)
                     if res.err is not None:
+                        if isinstance(proc_res, Result_Procedure):
+                            proc_res.result = False # Procedure is failed
+
                         if isinstance(res.err, Procedure_Abort_Error) or \
                             isinstance(res.err, Procedure_Stop_Error):
                                 proc_res.err = res.err
@@ -206,10 +210,17 @@ class Procedure_Context:
                 else:
                     raise TypeError(f"Uknown step type for step {step_id}: {step_def}:{type(step_def)}, step={step}")
 
+            # All steps where executed without error
+            if isinstance(proc_res, Result_Procedure) and proc_res.result is None:
+                proc_res.result = True
+
         except Exception as exc:
-            proc_res.err = exc
+            if isinstance(proc_res, Result_Procedure):
+                proc_res.result = False # Execution error
+
+            proc_res.err    = exc
             errlist.register(path_stack, exc)
-            proc_res.tests = list() # Empty tests result list
+            proc_res.tests  = list() # Empty tests result list
             self.log.debug(traceback.format_exc())
 
         finally:
@@ -248,7 +259,7 @@ class Procedure_Context:
 
             # Add step flags to result
             if res is not None:
-                res.id_ = id_
+                res.step_id = id_
                 res.options.update(step.options_get())
 
             # TODO # Move in finally section with none result if error?
