@@ -140,7 +140,10 @@ class Procedure_Context:
             path_stack.append(id_)
         
         # Some log stuff
-        self.log.info(f"Entering procedure {'.'.join(path_stack)}")
+        if id_:
+            self.log.info(f"Entering subprocedure {'.'.join(path_stack)}")
+        else:
+            self.log.info(f"Starting root procedure")
 
         # Get checklist item
         # TODO #
@@ -228,11 +231,18 @@ class Procedure_Context:
             for clbk in self.on_procedure_leave_callbacks:
                 clbk(path_stack, proc_res)
 
+            # Some log
+            if id_:
+                self.log.info(f"Leaving subprocedure {'.'.join(path_stack)}")
+            else:
+                self.log.info(f"Leaving root procedure")
+
             # Remove id from path_stack if any
             if id_:
                 path_stack.pop()
 
         return proc_res, errlist.errors
+
 
     # ──────────── Step execution ──────────── #
 

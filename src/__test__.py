@@ -33,12 +33,12 @@ if __name__ == "__main__":
 
     proc = (
         ("hello1", Hello_Step, {"msg": "Hello world 1!", "store_timestamp": True}),
-        ("hello2", Hello_Step, {"msg": "Hello world 1!", "store_timestamp": True}),
+        ("hello2", Hello_Step, {"msg": "Hello world 2!"}),
         ("cont1" , (
             ("hello1_1", Hello_Step, {"msg": "Hello world again!"}),
             ("hello1_2", Hello_Step, {"msg": "Hello world again encore!"})
         )),
-        ("hello3", Hello_Step, {"msg": "Hello world 1!", "store_timestamp": True})
+        ("hello3", Hello_Step, {"msg": "Hello world 3!"})
     )
 
     # Init procedure context
