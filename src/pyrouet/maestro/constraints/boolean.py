@@ -14,7 +14,7 @@ from dataclasses                         import dataclass, field
 
 @dataclass
 class Constraint_Boolean(Constraint_Object):
-    name = "boolean"
+    constraint_class = "boolean"
     ref_value: any
 
     def _validate(self,v):

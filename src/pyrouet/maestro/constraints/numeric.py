@@ -13,23 +13,25 @@ from dataclasses                         import dataclass,field,asdict
 
 @dataclass
 class Constraint_Below(Constraint_Object):
-    name = "below"
+    constraint_class = "below"
     ref_value: float
 
     def _validate(self,v):
         return v <= self.ref_value
+
 
 @dataclass
 class Constraint_Above(Constraint_Object):
-    name = "above"
+    constraint_class = "above"
     ref_value: float
 
     def _validate(self,v):
         return v <= self.ref_value
 
+
 @dataclass
 class Constraint_Tolerance(Constraint_Object):
-    name = "tolerance"
+    constraint_class = "tolerance"
 
     ref_value:       float
     tolerance_pcent: float
@@ -37,15 +39,17 @@ class Constraint_Tolerance(Constraint_Object):
     def _validate(self,v):
         return abs(v-self.ref_value)/(self.ref_value) < (self.tolerance_pcent/100.0)
 
+
 @dataclass
 class Constraint_Range(Constraint_Object):
-    name = "range"
+    constraint_class = "range"
 
     ref_min: float
     ref_max: float
 
     def _validate(self,v):
         return (v >= self.ref_min) and (v <= self.ref_max)
+
 
 if __name__ == "__main__":
     from pprint import pprint
