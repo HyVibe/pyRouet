@@ -26,7 +26,7 @@ class Constraint_Above(Constraint_Object):
     ref_value: float
 
     def _validate(self,v):
-        return v <= self.ref_value
+        return v >= self.ref_value
 
 
 @dataclass
