@@ -49,18 +49,3 @@ class Constraint_Range(Constraint_Object):
 
     def _validate(self,v):
         return (v >= self.ref_min) and (v <= self.ref_max)
-
-
-if __name__ == "__main__":
-    from pprint import pprint
-
-    cc = Constraint_Range(ref_min=0.5, ref_max=2)
-    pprint(cc)
-    pprint(asdict(cc))
-
-    cc2 = Constraint_Above(ref_value=3)
-    pprint(cc2)
-    pprint(asdict(cc2))
-
-    print(cc.validate(1.234))
-    print(cc.validate(2.3))

@@ -52,25 +52,3 @@ class Constraint_Description:
             constraint_class=cnst_class,
             options         = cnst_dict
         )
-        
-
-############################################
-
-if __name__ == "__main__":
-    from pprint      import pprint
-
-    @dataclass
-    class Constraint_Dumb(Constraint_Object):
-        constraint_class = "test"
-        magic_value: int
-
-    def _validate(self,v):
-        return True
-
-    xx = Constraint_Dumb(magic_value=23)
-    print(xx)
-    print(asdict(xx))
-
-    yy = Constraint_Description.from_constraint(xx)
-    print(yy)
-    print(asdict(yy))
