@@ -9,7 +9,7 @@
 """
 
 from abc         import ABC,abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from typing      import Dict
 
 
@@ -41,18 +41,36 @@ class Constraint_Description:
     constraint_class: str
     options: Dict[str, any]
 
+    @classmethod
+    def from_constraint(cls, c: Constraint_Object):
+        cnst_dict  = asdict(c)
+        cnst_class = cnst_dict["constraint_class"]
+
+        del cnst_dict["constraint_class"]
+
+        return cls(
+            constraint_class=cnst_class,
+            options         = cnst_dict
+        )
+        
+
 ############################################
 
 if __name__ == "__main__":
     from pprint      import pprint
-    from dataclasses import asdict
 
     @dataclass
     class Constraint_Dumb(Constraint_Object):
         constraint_class = "test"
+        magic_value: int
 
     def _validate(self,v):
         return True
 
-    xx = Constraint_Dumb()
+    xx = Constraint_Dumb(magic_value=23)
+    print(xx)
     print(asdict(xx))
+
+    yy = Constraint_Description.from_constraint(xx)
+    print(yy)
+    print(asdict(yy))

@@ -20,7 +20,8 @@ from ..objects.results import (
 )
 
 from ..objects.constraints import (
-    Constraint_Object
+    Constraint_Object,
+    Constraint_Description
 )
 
 from ..constraints import (
@@ -128,3 +129,106 @@ class Step_Action(Step_Base):
 
     def clean(self):
         pass
+
+
+# ┌────────────────────────────────────────┐
+# │ Base class for Measure step            │
+# └────────────────────────────────────────┘
+
+class Step_Measure(Step_Base):
+    def __init__(self,
+        constraint: Constraint_Object = None,
+        unit: str                     = "",
+        **kwargs
+        ):
+
+        super().__init__(**kwargs)
+
+        # Kwargs options
+        self.save_value = kwargs.get("save_value", False)
+
+        # Other parameters
+        self.constraint = constraint or Constraint_None()
+        self.unit       = unit
+
+    def _measure(self, ctx, path_stack, values):
+        pass
+
+    def run(self, ctx, path_stack, errlist, values):
+        log = logging.getLogger(self.path_str(path_stack))
+        id_ = path_stack[-1] # ID of action is tail of stack
+
+        # Construct result object
+        r   = Result_Measure(
+            constraint = Constraint_Description.from_constraint(self.constraint),
+            unit       = self.unit,
+        )
+
+        # Start timestamp
+        t_start = time.time()
+
+        try:
+            value   = self._measure(ctx, path_stack, values) # Measure value
+            r.value = value                                  # Store in result
+
+            # Store in saved values if needed
+            if self.save_value:
+                values.set(path_stack, r.value)
+
+        except Exception as e:
+            r.err = e # Store error
+            errlist.register(path_stack, e) # Register exception in error list
+
+            # Print traceback if uknown error
+            if not isinstance(e, Procedure_Error):
+                log.debug(traceback.format_exc())
+        finally:
+            t_end = time.time()
+
+            # Store timing information
+            if self.store_timestamp:
+                r.timestamp = int(t_start*1000)
+            if self.store_duration:
+                r.duration  = int((t_end-t_start)*1000)
+
+        return r
+
+    def clean(self):
+        pass
+
+
+# ┌────────────────────────────────────────┐
+# │ Class for Measure transforms           │
+# └────────────────────────────────────────┘
+
+
+class Step_Measure_Transform(Step_Measure):
+    def __init__(self,
+        value_from: str,
+        constraint: Constraint_Object = None,
+        unit: str = "",
+        **kwargs
+    ):
+
+        super().__init__(
+            constraint = constraint,
+            unit       = unit,
+            **kwargs
+        )
+
+        self.value_from = value_from
+
+    def _measure(self, ctx, path_stack, values):
+        # Get value from ctx values
+        vv = values.get(self.value_from, path_stack)
+        return self._transform(ctx, path_stack, vv)
+
+    def _transform(self, ctx, path_stack, values):
+        """
+        this functions take the value argument input, and turns it
+        into another value. For example, takes signal as input, and
+        transforms it in RMS value.
+        """
+        # To be implemeted
+        return value
+

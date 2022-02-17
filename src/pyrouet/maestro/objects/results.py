@@ -16,7 +16,12 @@ from typing      import (
     Dict
 )
 
-from .constraints import Constraint_Object
+from .constraints import (
+    Constraint_Object,
+    Constraint_Description
+)
+
+from copy         import deepcopy
 
 # ┌────────────────────────────────────────┐
 # │ Base result object                     │
@@ -79,8 +84,46 @@ class Result_Action(Result_ID_Object):
 class Result_Measure(Result_ID_Object):
     step_class = "measure"
 
-    constraint: Constraint_Object = None
+    constraint: Constraint_Description = Constraint_Description(constraint_class="none", options=dict())
     unit: str = ""
 
     # value is optional because the measure can fail
     value: Optional[any] = None
+
+# ┌────────────────────────────────────────┐
+# │ Construct from dict                    │
+# └────────────────────────────────────────┘
+
+#def from_dict(dd: Dict[str, any]):
+#    step_class   = dd["step_class"]
+#    step_options = dd["options"   ]
+#    r            = None # Result object
+#    
+#    if   step_class == "container":
+#        # Construct base result object
+#        r = Result_Container(step_id=dd["step_id"])
+#
+#        # Process inner tests
+#        for t_res in dd["tests"]:
+#            r.tests.append(from_dict(t_res))
+#
+#    elif step_class == "action":
+#        r = Result_Action(**dd)
+#
+#    elif step_class == "measure":
+#        # Build constraint description
+#        const_name = d_copy["constraint"]["name"]
+#        del d_copy["constraint"]["name"]
+#
+#        d_options = deepcopy(dd["constraint"])
+#        del d_options["constraint_class"]
+#
+#        r_constraint = Constraint_Description(
+#            name    = const_name,
+#            options = deepcopy(d_copy)
+#        )
+#
+#        # Build result object
+#        r = Result_Measure(**d_copy)
+#
+#    return r
