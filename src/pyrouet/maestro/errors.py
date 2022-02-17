@@ -32,7 +32,3 @@ class Procedure_Stop_Error(Procedure_Error):
 class Procedure_ChildFailed_Error(Procedure_Error):
     def __init__(self, path_stack=None):
         super().__init__("One of child item failed", path_stack)
-
-class Procedure_MissingUI_Error(Procedure_Error):
-    def __init__(self, path_stack=None):
-        super().__init__("Missing UI item")
