@@ -82,6 +82,7 @@ class Result_Container(Result_ID_Object):
     step_class = "container"
     tests: List[Result_Object] = field(default_factory=list)
 
+    result: bool = None
 
 # ┌────────────────────────────────────────┐
 # │ Action result object                   │

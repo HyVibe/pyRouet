@@ -188,9 +188,8 @@ class Procedure_Context:
                     # Store result for subprocedure
                     proc_res.tests.append(res)
 
-                    if res.err is not None:
-                        if isinstance(proc_res, Result_Procedure):
-                            proc_res.result = False # Procedure is failed
+                    if (not res.result) or (res.err is not None):
+                        proc_res.result = False
 
                         if isinstance(res.err, Procedure_Abort_Error) or \
                             isinstance(res.err, Procedure_Stop_Error):
@@ -211,9 +210,8 @@ class Procedure_Context:
                     )
 
                     proc_res.tests.append(res)
-                    if res.err is not None:
-                        if isinstance(proc_res, Result_Procedure):
-                            proc_res.result = False # Procedure is failed
+                    if (not res.result) or (res.err is not None):
+                        proc_res.result = False # Procedure is failed
 
                         if isinstance(res.err, Procedure_Abort_Error) or \
                             isinstance(res.err, Procedure_Stop_Error):
@@ -231,12 +229,11 @@ class Procedure_Context:
                     raise TypeError(f"Uknown step type for step {step_id}: {step_def}:{type(step_def)}, step={step}")
 
             # All steps where executed without error
-            if isinstance(proc_res, Result_Procedure) and proc_res.result is None:
+            if proc_res.result is None:
                 proc_res.result = True
 
         except Exception as exc:
-            if isinstance(proc_res, Result_Procedure):
-                proc_res.result = False # Execution error
+            proc_res.result = False # Execution error
 
             proc_res.err    = exc
             errlist.register(path_stack, exc)
