@@ -217,14 +217,14 @@ class Procedure_Context:
                             isinstance(res.err, Procedure_Stop_Error):
                                 proc_res.err = res.err
                                 break # Critical error
-                    # For other exceptions
-                    else:
-                        if step_instance.critical: # Must. stop. procedure.
-                            proc_res.err = Procedure_Stop_Error() # Request to stop procedure
-                            break                                 # Break from loop
+                        # For other exceptions
+                        else:
+                            if step_instance.critical: # Must. stop. procedure.
+                                proc_res.err = Procedure_Stop_Error() # Request to stop procedure
+                                break                                 # Break from loop
 
-                        elif step_instance.break_if_error:
-                            break # Just break from loop without storing error
+                            elif step_instance.break_if_error:
+                                break # Just break from loop without storing error
                 else:
                     raise TypeError(f"Uknown step type for step {step_id}: {step_def}:{type(step_def)}, step={step}")
 
