@@ -7,6 +7,10 @@
  March 2021
 """
 
+from pyrouet.maestro.objects.constraints import (
+    Constraint_Description
+)
+
 from pyrouet.maestro.constraints import (
     Constraint_None,
 
@@ -63,3 +67,13 @@ def test_constraint_range():
     assert     cnstr_range.validate(2.596839)
     assert not cnstr_range.validate(4.0     )
     assert not cnstr_range.validate(1.9999  )
+
+def test_constraint_description():
+    cnstr_range = Constraint_Range(ref_min=2.0, ref_max=3.0)
+    cnstr_desc  = Constraint_Description.from_constraint(cnstr_range)
+
+    assert cnstr_desc.constraint_class   == "range"
+    assert cnstr_desc.options["ref_min"] == 2.0
+    assert cnstr_desc.options["ref_max"] == 3.0
+
+
