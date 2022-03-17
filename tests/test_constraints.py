@@ -29,6 +29,7 @@ def test_constraint_none():
 
     assert not cnstr_none.validate(None)
 
+
 def test_constraint_boolean():
     cnstr_bool_true = Constraint_Boolean(ref_value = True)
     assert     cnstr_bool_true.validate(True)
@@ -61,12 +62,14 @@ def test_constraint_tolerance():
     assert     cnstr_tolerance.validate(1.09)
     assert not cnstr_tolerance.validate(1.2 )
 
+
 def test_constraint_range():
     cnstr_range = Constraint_Range(ref_min = 2.0, ref_max = 3.0)
     assert     cnstr_range.validate(2.2     )
     assert     cnstr_range.validate(2.596839)
     assert not cnstr_range.validate(4.0     )
     assert not cnstr_range.validate(1.9999  )
+
 
 def test_constraint_description():
     cnstr_range = Constraint_Range(ref_min=2.0, ref_max=3.0)
