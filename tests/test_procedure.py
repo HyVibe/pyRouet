@@ -8,16 +8,25 @@
 """
 
 from pyrouet.maestro.procedure.ctx    import Procedure_Context
+
+from pyrouet.maestro.constraints import (
+    Constraint_Above
+)
+
 from pyrouet.maestro.procedure.step import (
     Step_Base,
-    Step_Action
+    Step_Action,
+    Step_Measure,
+    Step_Measure_Transform
 )
 
 from pyrouet.maestro.errors import (
     Procedure_Error,
     Procedure_Abort_Error,
-    Procedure_Stop_Error
+    Procedure_Stop_Error,
+    Procedure_Constraint_Error
 )
+
 
 from   dataclasses import asdict
 from   pprint      import pprint
@@ -47,9 +56,20 @@ class My_Step(Step_Action):
         if self.delay:
             time.sleep(self.delay/1000)
 
+
+class My_Measure(Step_Measure):
+    def __init__(self, value, constraint, unit="", **kwargs):
+        super().__init__(constraint, unit, **kwargs)
+        self.value = value
+
+    def _measure(self, ctx, path_stack, values):
+        return self.value
+
+
 # ┌────────────────────────────────────────┐
 # │ Step tests                             │
 # └────────────────────────────────────────┘
+
 def test_step_success():
     stp = My_Step("Hello world", fail=False)
     ctx = Procedure_Context()
@@ -71,9 +91,37 @@ def test_step_fail():
         assert res.result == False
         assert isinstance(res.err, Procedure_Error)
 
+
+def test_measure_success():
+    stp = My_Measure(1.0, constraint=Constraint_Above(ref_value=0.0))
+    ctx = Procedure_Context()
+
+    for i in range(2):
+        res, errlist = ctx.step_run("test", stp)
+
+        pprint(asdict(res))
+
+        assert res.result == True
+        assert res.err    is None
+
+
+def test_measure_fail():
+    stp = My_Measure(-1.0, constraint=Constraint_Above(ref_value=0.0))
+    ctx = Procedure_Context()
+
+    for i in range(2):
+        res, errlist = ctx.step_run("test", stp)
+
+        pprint(asdict(res))
+
+        assert res.result == False
+        assert isinstance(res.err, Procedure_Constraint_Error)
+
+
 # ┌────────────────────────────────────────┐
 # │ Procedure tests                        │
 # └────────────────────────────────────────┘
+
 def test_procedure_basic():
     proc = (
         ("test1", My_Step, {"msg": "Hello world 1 !", "fail": False}),
@@ -89,6 +137,7 @@ def test_procedure_basic():
         assert res.result == True
         assert res.err is None
         assert len(res.tests) == 3 # All tests were executed
+
 
 def test_procedure_fail():
     proc = (
@@ -109,9 +158,11 @@ def test_procedure_fail():
         assert len(res.tests) == 3 # All tests were executed even
                                    # if the middle one failed
 
+
 # ┌────────────────────────────────────────┐
 # │ Subproc tests                          │
 # └────────────────────────────────────────┘
+
 def test_subproc_basic():
     proc = ( ("test1", My_Step, {"msg": "Hello world 1 !", "fail": False}),
              ("test2", My_Step, {"msg": "Hello world 2 !", "fail": False}),
@@ -133,6 +184,7 @@ def test_subproc_basic():
 
         assert res.tests[0].step_id == "subproc1"
         assert res.tests[1].step_id == "subproc2"
+
 
 def test_subproc_fail():
     subproc1 = ( ("test1", My_Step, {"msg": "Hello world 1 !", "fail": False}),
@@ -167,9 +219,11 @@ def test_subproc_fail():
         assert res.result == False
         assert res.err is None # No critical step → No error at global level
 #
+
 # ┌────────────────────────────────────────┐
 # │ Execution flow flags                   │
 # └────────────────────────────────────────┘
+
 def test_critical_flag():
     subproc1 = ( ("test1", My_Step, {"msg": "Hello world 1 !", "fail": False, "critical": True}), # Flag doesn't have any effect as step will pass
                  ("test2", My_Step, {"msg": "Hello world 2 !", "fail": True , "critical": True}), # Flag must stop all procedure execution
@@ -179,8 +233,11 @@ def test_critical_flag():
                  ("test2", My_Step, {"msg": "Hello world 2 !", "fail": False}),
                  ("test3", My_Step, {"msg": "Hello world 3 !", "fail": False}) )
 
+    # Nested error_subproc tests condition to check Stop_Error in procedure context execution
     proc = (  ("subproc1", subproc1),
-              ("subproc2", subproc2) )
+              ("subproc2", (
+                    ("error_subproc", subproc2)
+              )) )
 
     ctx = Procedure_Context()
 
@@ -196,6 +253,7 @@ def test_critical_flag():
         assert isinstance(res.err, Procedure_Stop_Error) # Critical step failed → Raised Stop_Error
 
         assert res.tests[0].step_id == "subproc1"
+
 
 def test_break_if_error_flag():
     subproc1 = ( ("test1", My_Step, {"msg": "Hello world 1 !", "fail": False, "break_if_error": True}), # Flag doesn't have any effect as step will pass
@@ -230,9 +288,11 @@ def test_break_if_error_flag():
         assert res.tests[0].step_id == "subproc1"
         assert res.tests[1].step_id == "subproc2"
 
+
 # ┌────────────────────────────────────────┐
 # │ Misc coverage tests                    │
 # └────────────────────────────────────────┘
+
 def test_procedure_globerr():
     proc = (
         ("test1", My_Step, {"msg": "Hello world 1 !", "fail": False}),
@@ -251,6 +311,7 @@ def test_procedure_globerr():
         assert isinstance(res.err, TypeError) # TypeError('cannot unpack non-iterable NoneType object')
         assert len(res.tests) == 0 # Global error → No tests saved !
     
+
 def test_procedure_invalid_shape():
     proc = (
         ("test1", My_Step, {"msg": "Hello world 1 !", "fail": False}),
@@ -267,9 +328,11 @@ def test_procedure_invalid_shape():
         assert isinstance(res.err, TypeError) # missing "err" attribute in result from step_run
         assert len(res.tests) == 0 # Global error → No tests saved !
 
+
 # ┌────────────────────────────────────────┐
 # │ Timing storage                         │
 # └────────────────────────────────────────┘
+
 def test_timing_storage():
     proc = (
         ("test1", My_Step, {"msg": "Hello world 1 !", "fail": False, "store_timestamp": True}),

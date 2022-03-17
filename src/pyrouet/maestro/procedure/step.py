@@ -50,7 +50,8 @@ from ..constraints import (
 
 from ..errors import (
     Procedure_Error,
-    Procedure_Abort_Error
+    Procedure_Constraint_Error,
+    Procedure_Abort_Error,
 )
 
 
@@ -185,6 +186,7 @@ class Step_Measure(Step_Base):
         t_start = time.time()
 
         try:
+            # Get and store value
             value   = self._measure(ctx, path_stack, values) # Measure value
             r.value = value                                  # Store in result
 
@@ -192,7 +194,15 @@ class Step_Measure(Step_Base):
             if self.save_value:
                 values.set(path_stack, r.value)
 
+            # Compare against constraint
+            if not self.constraint.validate(r.value):
+                raise Procedure_Constraint_Error(self.constraint, r.value, path_stack)
+
+            # Measure and constraint validated without error, result is True
+            r.result = True
+
         except Exception as e:
+            r.result = False
             r.err = e # Store error
             errlist.register(path_stack, e) # Register exception in error list
 

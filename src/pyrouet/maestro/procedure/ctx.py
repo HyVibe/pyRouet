@@ -228,7 +228,7 @@ class Procedure_Context:
                 else:
                     raise TypeError(f"Uknown step type for step {step_id}: {step_def}:{type(step_def)}, step={step}")
 
-            # All steps where executed without error
+            # All steps where executed without error!
             if proc_res.result is None:
                 proc_res.result = True
 

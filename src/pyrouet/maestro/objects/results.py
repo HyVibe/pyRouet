@@ -104,6 +104,7 @@ class Result_Measure(Result_ID_Object):
 
     constraint: Constraint_Description = Constraint_Description(constraint_class="none", options=dict())
     unit: str = ""
+    result: bool = False
 
     # value is optional because the measure can fail
     value: Optional[any] = None
