@@ -23,19 +23,23 @@
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+from .objects.constraints import Constraint_Description
+
 # ┌────────────────────────────────────────┐
 # │ Procedure errors                       │
 # └────────────────────────────────────────┘
 
 class Procedure_Error(Exception):
     def __init__(self, msg, path_stack = None):
-        super().__init__(msg)
-
+        self.msg        = msg
         self.path_stack = None
         if path_stack:
             # Ensure tuple type to break mutable
             # path stack if path_stack is a list
             self.path_stack = tuple(path_stack)
+
+    def __str__(self):
+        return self.msg
 
 class Procedure_Abort_Error(Procedure_Error):
     def __init__(self, path_stack=None):
@@ -51,5 +55,5 @@ class Procedure_ChildFailed_Error(Procedure_Error):
 
 class Procedure_Constraint_Error(Procedure_Error):
     def __init__(self, constraint, value, path_stack=None):
-        super().__init__(f"Constraint '{constraint.constraint_class}' with options '{constraint.options}' failed for value '{value}'")
-
+        super().__init__(f"Constraint '{constraint.constraint_class}' with options '{constraint.options}' failed for value '{value}'", path_stack)
+        self.value = value
