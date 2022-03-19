@@ -112,6 +112,7 @@ def test_measure_fail():
     for i in range(2):
         res, errlist = ctx.step_run("test", stp)
 
+        pprint(res)
         pprint(asdict(res))
 
         assert res.result == False

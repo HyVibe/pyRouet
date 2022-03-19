@@ -196,14 +196,14 @@ class Step_Measure(Step_Base):
 
             # Compare against constraint
             if not self.constraint.validate(r.value):
-                raise Procedure_Constraint_Error(self.constraint, r.value, path_stack)
+                raise Procedure_Constraint_Error(r.constraint, r.value, path_stack)
 
             # Measure and constraint validated without error, result is True
             r.result = True
 
         except Exception as e:
             r.result = False
-            r.err = e # Store error
+            r.err    = e # Store error
             errlist.register(path_stack, e) # Register exception in error list
 
             # Print traceback if uknown error
