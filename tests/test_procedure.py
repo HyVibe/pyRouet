@@ -59,6 +59,20 @@ class My_Step(Step_Action):
             time.sleep(self.delay/1000)
 
 
+class My_Broken_Step(Step_Action):
+    """
+    This step's implementation is voluntary broken,
+    so that it raises an non-Procedure_Error derived
+    exception.
+    """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def _impl(self, ctx, path_stack):
+        broken_dict = {"a": 1, "b": 2}
+        print(broken_dict["c"]) # Raises KeyError
+
+
 class My_Measure(Step_Measure):
     def __init__(self, value, constraint, unit="", delay=0, **kwargs):
         super().__init__(constraint, unit, **kwargs)
@@ -71,6 +85,19 @@ class My_Measure(Step_Measure):
 
         return self.value
 
+class My_Broken_Measure(Step_Measure):
+    """
+    This step's implementation is voluntary broken,
+    so that it raises an non-Procedure_Error derived
+    exception.
+    """
+
+    def __init__(self, constraint, unit="", **kwargs):
+        super().__init__(constraint, unit, **kwargs)
+
+    def _measure(self, ctx, path_stack, values):
+        broken_dict = {"a": 1, "b": 2}
+        return broken_dict["c"] # Raises KeyError
 
 class My_Transform(Step_Measure_Transform):
     def __init__(self, value_from, constraint, unit = "", **kwargs):
@@ -104,6 +131,16 @@ def test_step_fail():
         assert res.result == False
         assert isinstance(res.err, Procedure_Error)
 
+def test_step_broken():
+    stp = My_Broken_Step()
+    ctx = Procedure_Context()
+
+    for i in range(2):
+        res, errlist = ctx.step_run("test", stp)
+
+        assert res.result == False
+        assert not isinstance(res.err, Procedure_Error)
+
 
 def test_measure_success():
     stp = My_Measure(1.0, constraint=Constraint_Above(ref_value=0.0))
@@ -131,6 +168,16 @@ def test_measure_fail():
         assert res.result == False
         assert isinstance(res.err, Procedure_Constraint_Error)
 
+
+def test_measure_broken():
+    stp = My_Broken_Measure(constraint=None)
+    ctx = Procedure_Context()
+
+    for i in range(2):
+        res, errlist = ctx.step_run("test", stp)
+
+        assert res.result == False
+        assert not isinstance(res.err, Procedure_Error)
 
 # ┌────────────────────────────────────────┐
 # │ Procedure tests                        │
