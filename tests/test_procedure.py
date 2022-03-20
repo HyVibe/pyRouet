@@ -10,6 +10,7 @@
 from pyrouet.maestro.procedure.ctx    import Procedure_Context
 
 from pyrouet.maestro.constraints import (
+    Constraint_None,
     Constraint_Above
 )
 
@@ -36,6 +37,7 @@ import time
 # ┌────────────────────────────────────────┐
 # │ Mock step definition                   │
 # └────────────────────────────────────────┘
+
 class My_Step(Step_Action):
     def __init__(self, msg, fail=False, delay=0, **kwargs):
         super().__init__(**kwargs)
@@ -58,13 +60,24 @@ class My_Step(Step_Action):
 
 
 class My_Measure(Step_Measure):
-    def __init__(self, value, constraint, unit="", **kwargs):
+    def __init__(self, value, constraint, unit="", delay=0, **kwargs):
         super().__init__(constraint, unit, **kwargs)
         self.value = value
+        self.delay = delay
 
     def _measure(self, ctx, path_stack, values):
+        if self.delay:
+            time.sleep(self.delay/1000)
+
         return self.value
 
+
+class My_Transform(Step_Measure_Transform):
+    def __init__(self, value_from, constraint, unit = "", **kwargs):
+        super().__init__(value_from, constraint, unit, **kwargs)
+
+    #def _transform(self, ctx, path_stack, value):
+    #    return value+1
 
 # ┌────────────────────────────────────────┐
 # │ Step tests                             │
@@ -336,9 +349,11 @@ def test_procedure_invalid_shape():
 
 def test_timing_storage():
     proc = (
-        ("test1", My_Step, {"msg": "Hello world 1 !", "fail": False, "store_timestamp": True}),
-        ("test2", My_Step, {"msg": "Hello world 2 !", "delay": 500, "fail": False, "store_duration": True}),
-        ("test3", My_Step, {"msg": "Hello world 3 !", "fail": False})
+        ("test1", My_Step,    {"msg": "Hello world 1 !", "fail": False, "store_timestamp": True}),
+        ("test2", My_Measure, {"value": 1, "constraint": None,          "store_timestamp": True}),
+        ("test3", My_Step,    {"msg": "Hello world 2 !", "delay": 200, "fail": False, "store_duration": True}),
+        ("test4", My_Measure, {"value": 1, "constraint": None, "delay": 200, "store_duration": True}),
+        ("test5", My_Step,    {"msg": "Hello world 3 !", "fail": False})
     )
 
     ctx = Procedure_Context()
@@ -348,7 +363,31 @@ def test_timing_storage():
 
         assert res.result == True
         assert res.err is None
-        assert len(res.tests) == 3 # All tests were executed
+        assert len(res.tests) == 5 # All tests were executed
 
-        assert res.tests[1].duration >= 500
         assert isinstance(res.tests[0].timestamp, int) # Timestamp was stored
+        assert isinstance(res.tests[1].timestamp, int) # Timestamp was stored
+        assert res.tests[2].duration >= 200            # Duration was stored
+        assert res.tests[3].duration >= 200            # Duration was stored
+
+
+# ┌────────────────────────────────────────┐
+# │ Measure store and transform            │
+# └────────────────────────────────────────┘
+
+def test_measure_values():
+    """
+    Tests value save_flag option and measure transforms
+    """
+    proc = (
+        ("measure"  , My_Measure,   {"value": 2, "constraint": None, "save_value": True}),
+        ("transform", My_Transform, {"value_from": "^measure", "constraint": Constraint_Above(2)})
+    )
+    
+    ctx = Procedure_Context()
+
+    for i in range(2):
+        res,errlist = ctx.procedure_run(proc)
+
+        assert res.result == True
+        assert res.err is None

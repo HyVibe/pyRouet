@@ -176,6 +176,8 @@ class Procedure_Context:
                 step_def = step[1]
                 res      = None
 
+                self.log.debug(repr(step))
+
                 # Run subprocedure
                 if isinstance(step_def, tuple):
                     # Run procedure, should not throw any exception

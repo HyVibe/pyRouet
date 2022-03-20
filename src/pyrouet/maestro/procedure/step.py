@@ -89,13 +89,13 @@ class Step_Base(ABC):
 
     @abstractmethod
     def run(self, ctx, path_stack, errlist, values):
-        pass
+        pass # pragma: no cover
 
     def clean(self):
-        pass
+        pass # pragma: no cover
 
     def abort(self):
-        pass
+        pass # pragma: no cover
 
     @classmethod
     def path_str(cls, path_stack):
@@ -112,7 +112,7 @@ class Step_Action(Step_Base):
 
     # user-implemented
     def _impl(self, ctx, path_stack):
-        pass
+        pass # pragma: no cover
 
     def run(self, ctx, path_stack, errlist, values):
         log     = logging.getLogger(self.path_str(path_stack))
@@ -146,7 +146,7 @@ class Step_Action(Step_Base):
         return r
 
     def clean(self):
-        pass
+        pass # pragma: no cover
 
 
 # ┌────────────────────────────────────────┐
@@ -158,8 +158,7 @@ class Step_Measure(Step_Base):
         constraint: Constraint_Object = None,
         unit: str                     = "",
         **kwargs
-        ):
-
+    ):
         super().__init__(**kwargs)
 
         # Kwargs options
@@ -170,7 +169,7 @@ class Step_Measure(Step_Base):
         self.unit       = unit
 
     def _measure(self, ctx, path_stack, values):
-        pass
+        pass # pragma: no cover
 
     def run(self, ctx, path_stack, errlist, values):
         log = logging.getLogger(self.path_str(path_stack))
@@ -221,7 +220,7 @@ class Step_Measure(Step_Base):
         return r
 
     def clean(self):
-        pass
+        pass # pragma: no cover
 
 
 # ┌────────────────────────────────────────┐
@@ -249,7 +248,7 @@ class Step_Measure_Transform(Step_Measure):
         vv = values.get(self.value_from, path_stack)
         return self._transform(ctx, path_stack, vv)
 
-    def _transform(self, ctx, path_stack, values):
+    def _transform(self, ctx, path_stack, value):
         """
         this functions take the value argument input, and turns it
         into another value. For example, takes signal as input, and
