@@ -121,6 +121,7 @@ class Procedure_Context:
         self.on_procedure_enter_callbacks     = set()
         self.on_procedure_leave_callbacks     = set()
 
+
     # ┌────────────────────────────────────────┐
     # │ Callback managment                     │
     # └────────────────────────────────────────┘
@@ -131,6 +132,12 @@ class Procedure_Context:
     def register_step_leave_callback(self,clbk):
         self.on_step_leave_callbacks.add(clbk)
     
+    def register_procedure_enter_callback(self,clbk):
+        self.on_procedure_enter_callbacks.add(clbk)
+
+    def register_procedure_leave_callback(self,clbk):
+        self.on_procedure_leave_callbacks.add(clbk)
+
 
     # ┌────────────────────────────────────────┐
     # │ Run functions                          │

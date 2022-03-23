@@ -377,7 +377,8 @@ def test_procedure_invalid_shape():
     proc = (
         ("test1", My_Step, {"msg": "Hello world 1 !", "fail": False}),
         ("test2", "12", {"msg": "Hello world 2 !", "fail": False}), # Oopsie
-        ("test3", My_Step, {"msg": "Hello world 3 !", "fail": False})
+        ("test3", My_Step, {"msg": "Hello world 3 !", "fail": False}),
+        ("test4", "kdjr")
     )
 
     ctx = Procedure_Context()
