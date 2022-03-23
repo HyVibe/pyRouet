@@ -49,10 +49,6 @@ class Procedure_Stop_Error(Procedure_Error):
     def __init__(self, path_stack=None):
         super().__init__("Procedure stopped", path_stack)
 
-class Procedure_ChildFailed_Error(Procedure_Error):
-    def __init__(self, path_stack=None):
-        super().__init__("One of child item failed", path_stack)
-
 class Procedure_Constraint_Error(Procedure_Error):
     def __init__(self, constraint, value, path_stack=None):
         super().__init__(f"Constraint '{constraint.constraint_class}' with options '{constraint.options}' failed for value '{value}'", path_stack)
