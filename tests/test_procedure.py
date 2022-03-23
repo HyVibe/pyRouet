@@ -52,7 +52,7 @@ class My_Step(Step_Action):
         self.mustfail = False
         print("Msg : {}".format(self.msg))
 
-        if self.fail or self.mustfail : raise Procedure_Error("I must fail !", path_stack)
+        if self.fail or self.mustfail : raise Procedure_Error("I must fail!", path_stack)
         self.mustfail = True
 
         if self.delay:
@@ -130,6 +130,7 @@ def test_step_fail():
 
         assert res.result == False
         assert isinstance(res.err, Procedure_Error)
+        assert str(res.err) == "I must fail!"
 
 def test_step_broken():
     stp = My_Broken_Step()
@@ -164,9 +165,11 @@ def test_measure_fail():
 
         pprint(res)
         pprint(asdict(res))
+        pprint(str(res.err))
 
         assert res.result == False
         assert isinstance(res.err, Procedure_Constraint_Error)
+        assert str(res.err) == "Constraint 'above' with options '{'ref_value': 0.0}' failed for value '-1.0'"
 
 
 def test_measure_broken():
